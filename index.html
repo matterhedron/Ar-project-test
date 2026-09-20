@@ -17,7 +17,7 @@
   <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
 
 
-  <!-- A-FRAME EXTRAS - GLB ANIMATION -->
+  <!-- A-FRAME EXTRAS -->
   <script src="https://cdn.jsdelivr.net/npm/aframe-extras@7.5.4/dist/aframe-extras.min.js"></script>
 
 
@@ -33,8 +33,6 @@
       font-family: Arial, sans-serif;
     }
 
-
-    /* STATUS MESSAGE */
 
     #instructions {
 
@@ -64,8 +62,6 @@
     }
 
 
-    /* RESET BUTTON */
-
     #resetButton {
 
       position: fixed;
@@ -93,15 +89,6 @@
 
     }
 
-
-    #resetButton:active {
-
-      background: white;
-
-      color: black;
-
-    }
-
   </style>
 
 </head>
@@ -111,17 +98,12 @@
 <body>
 
 
-  <!-- STATUS -->
-
   <div id="instructions">
 
     Loading AR...
 
   </div>
 
-
-
-  <!-- RESET -->
 
   <button id="resetButton">
 
@@ -132,12 +114,20 @@
 
 
   <!-- =====================================================
-       AR SCENE
+       MINDAR IS INITIALISED HERE
        ===================================================== -->
+
 
   <a-scene
 
     id="ar-scene"
+
+    mindar-image="
+      imageTargetSrc: ./targets.mind;
+      autoStart: true;
+      missTolerance: 30;
+      warmupTolerance: 5;
+    "
 
     color-space="sRGB"
 
@@ -150,13 +140,12 @@
 
     device-orientation-permission-ui="enabled: false"
 
-    embedded
-
   >
 
 
 
     <!-- CAMERA -->
+
 
     <a-camera
 
@@ -172,6 +161,7 @@
          TRACKED ARTWORK
          =================================================== -->
 
+
     <a-entity
 
       id="target"
@@ -180,14 +170,9 @@
 
 
 
-      <!-- ===============================================
-           RED DIAGNOSTIC CUBE
-           ===============================================
-
-           If this appears, MindAR is correctly rendering
-           objects attached to the artwork.
-
-      -->
+      <!-- =================================================
+           RED TEST CUBE
+           ================================================= -->
 
 
       <a-box
@@ -198,15 +183,15 @@
 
         scale="0.2 0.2 0.2"
 
-        color="#FF0000">
+        color="red">
 
       </a-box>
 
 
 
-      <!-- ===============================================
-           YOUR GLB MODEL
-           =============================================== -->
+      <!-- =================================================
+           GLB MODEL
+           ================================================= -->
 
 
       <a-gltf-model
@@ -265,7 +250,7 @@ const resetButton =
 
 
 /* =========================================================
-   AUTOMATIC CACHE BUSTING
+   MODEL CACHE BUSTING
    ========================================================= */
 
 
@@ -275,10 +260,6 @@ const version =
 
 const modelURL =
   "./model.glb?v=" + version;
-
-
-const targetURL =
-  "./targets.mind?v=" + version;
 
 
 console.log(
@@ -293,16 +274,10 @@ console.log(
 );
 
 
-console.log(
-  "TARGET URL:",
-  targetURL
-);
-
-
 
 
 /* =========================================================
-   MODEL LOADED
+   MODEL EVENTS
    ========================================================= */
 
 
@@ -314,7 +289,7 @@ model.addEventListener(
 
 
     console.log(
-      "MODEL LOADED SUCCESSFULLY"
+      "MODEL LOADED"
     );
 
 
@@ -348,12 +323,6 @@ model.addEventListener(
 
 
 
-
-/* =========================================================
-   MODEL ERROR
-   ========================================================= */
-
-
 model.addEventListener(
 
   "model-error",
@@ -364,18 +333,6 @@ model.addEventListener(
     console.error(
       "MODEL ERROR:",
       event
-    );
-
-
-    console.error(
-      "MODEL ERROR DETAIL:",
-      event.detail
-    );
-
-
-    console.error(
-      "MODEL URL:",
-      modelURL
     );
 
 
@@ -411,25 +368,6 @@ model.setAttribute(
 
 
 /* =========================================================
-   CONFIGURE MINDAR
-   ========================================================= */
-
-
-scene.setAttribute(
-
-  "mindar-image",
-
-  `imageTargetSrc: ${targetURL};
-   autoStart: true;
-   missTolerance: 30;
-   warmupTolerance: 5;`
-
-);
-
-
-
-
-/* =========================================================
    AR READY
    ========================================================= */
 
@@ -442,7 +380,7 @@ scene.addEventListener(
 
 
     console.log(
-      "MINDAR READY"
+      "AR READY"
     );
 
 
@@ -462,40 +400,7 @@ scene.addEventListener(
 
 
 /* =========================================================
-   AR ERROR
-   ========================================================= */
-
-
-scene.addEventListener(
-
-  "arError",
-
-  function (event) {
-
-
-    console.error(
-      "MINDAR ERROR:",
-      event
-    );
-
-
-    instructions.style.display =
-      "block";
-
-
-    instructions.innerText =
-      "AR failed to start";
-
-
-  }
-
-);
-
-
-
-
-/* =========================================================
-   ARTWORK FOUND
+   TARGET FOUND
    ========================================================= */
 
 
@@ -543,7 +448,7 @@ target.addEventListener(
 
 
 /* =========================================================
-   ARTWORK LOST
+   TARGET LOST
    ========================================================= */
 
 
@@ -575,7 +480,7 @@ target.addEventListener(
 
 
 /* =========================================================
-   RESET BUTTON
+   RESET
    ========================================================= */
 
 
@@ -586,10 +491,6 @@ resetButton.addEventListener(
   async function () {
 
 
-    resetButton.innerText =
-      "Resetting...";
-
-
     instructions.style.display =
       "block";
 
@@ -598,30 +499,9 @@ resetButton.addEventListener(
       "Resetting tracking...";
 
 
+    resetButton.innerText =
+      "Resetting...";
 
-    /* RESET MODEL */
-
-
-    model.setAttribute(
-      "position",
-      "0 0 0.1"
-    );
-
-
-    model.setAttribute(
-      "rotation",
-      "90 0 0"
-    );
-
-
-    model.setAttribute(
-      "scale",
-      "0.3 0.3 0.3"
-    );
-
-
-
-    /* RESTART MINDAR */
 
 
     const mindarSystem =
@@ -639,11 +519,11 @@ resetButton.addEventListener(
         await mindarSystem.stop();
 
 
+        await mindarSystem.start();
+
+
         instructions.innerText =
           "Point your camera at the artwork";
-
-
-        await mindarSystem.start();
 
 
       }
@@ -659,7 +539,7 @@ resetButton.addEventListener(
 
 
         instructions.innerText =
-          "Unable to reset AR";
+          "Reset failed";
 
 
       }
