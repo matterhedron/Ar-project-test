@@ -131,7 +131,9 @@
 
 
 
-  <!-- AR SCENE -->
+  <!-- =====================================================
+       AR SCENE
+       ===================================================== -->
 
   <a-scene
 
@@ -166,7 +168,9 @@
 
 
 
-    <!-- TRACKED ARTWORK -->
+    <!-- ===================================================
+         TRACKED ARTWORK
+         =================================================== -->
 
     <a-entity
 
@@ -175,7 +179,35 @@
       mindar-image-target="targetIndex: 0">
 
 
-      <!-- 3D MODEL -->
+
+      <!-- ===============================================
+           RED DIAGNOSTIC CUBE
+           ===============================================
+
+           If this appears, MindAR is correctly rendering
+           objects attached to the artwork.
+
+      -->
+
+
+      <a-box
+
+        id="testCube"
+
+        position="0 0 0.1"
+
+        scale="0.2 0.2 0.2"
+
+        color="#FF0000">
+
+      </a-box>
+
+
+
+      <!-- ===============================================
+           YOUR GLB MODEL
+           =============================================== -->
+
 
       <a-gltf-model
 
@@ -185,7 +217,7 @@
 
         rotation="90 0 0"
 
-        scale="0.01 0.01 0.01"
+        scale="0.3 0.3 0.3"
 
         animation-mixer="
           clip: *;
@@ -233,7 +265,7 @@ const resetButton =
 
 
 /* =========================================================
-   CACHE BUSTING
+   AUTOMATIC CACHE BUSTING
    ========================================================= */
 
 
@@ -270,7 +302,7 @@ console.log(
 
 
 /* =========================================================
-   MODEL LOADING EVENTS
+   MODEL LOADED
    ========================================================= */
 
 
@@ -317,6 +349,11 @@ model.addEventListener(
 
 
 
+/* =========================================================
+   MODEL ERROR
+   ========================================================= */
+
+
 model.addEventListener(
 
   "model-error",
@@ -325,31 +362,19 @@ model.addEventListener(
 
 
     console.error(
-      "MODEL ERROR EVENT:"
-    );
-
-
-    console.error(
+      "MODEL ERROR:",
       event
     );
 
 
     console.error(
-      "MODEL ERROR DETAIL:"
-    );
-
-
-    console.error(
+      "MODEL ERROR DETAIL:",
       event.detail
     );
 
 
     console.error(
-      "ATTEMPTED MODEL URL:"
-    );
-
-
-    console.error(
+      "MODEL URL:",
       modelURL
     );
 
@@ -470,7 +495,7 @@ scene.addEventListener(
 
 
 /* =========================================================
-   TARGET FOUND
+   ARTWORK FOUND
    ========================================================= */
 
 
@@ -518,7 +543,7 @@ target.addEventListener(
 
 
 /* =========================================================
-   TARGET LOST
+   ARTWORK LOST
    ========================================================= */
 
 
@@ -574,12 +599,12 @@ resetButton.addEventListener(
 
 
 
-    /* RESET MODEL TRANSFORM */
+    /* RESET MODEL */
 
 
     model.setAttribute(
       "position",
-      "0 0 0"
+      "0 0 0.1"
     );
 
 
@@ -596,14 +621,13 @@ resetButton.addEventListener(
 
 
 
-    /* GET MINDAR SYSTEM */
+    /* RESTART MINDAR */
 
 
     const mindarSystem =
       scene.systems[
         "mindar-image-system"
       ];
-
 
 
     if (mindarSystem) {
