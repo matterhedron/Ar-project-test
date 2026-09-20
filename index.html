@@ -68,6 +68,8 @@
     mindar-image="
       imageTargetSrc: ./targets.mind;
       autoStart: true;
+      missTolerance: 15;
+      warmupTolerance: 5;
     "
 
     color-space="sRGB"
@@ -108,12 +110,16 @@
 
     <!-- TRACKED ARTWORK -->
 
-    <a-entity mindar-image-target="targetIndex: 0">
+    <a-entity
+      id="target"
+      mindar-image-target="targetIndex: 0">
 
 
       <!-- ANIMATED BLENDER MODEL -->
 
       <a-gltf-model
+
+        id="ar-model"
 
         src="#model"
 
