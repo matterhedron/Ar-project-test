@@ -105,6 +105,7 @@
   </div>
 
 
+
   <button id="resetButton">
 
     Reset to Artwork
@@ -114,7 +115,7 @@
 
 
   <!-- =====================================================
-       MINDAR IS INITIALISED HERE
+       AR SCENE
        ===================================================== -->
 
 
@@ -171,32 +172,18 @@
 
 
       <!-- =================================================
-           RED TEST CUBE
-           ================================================= -->
+           NEW MODEL
 
-
-      <a-box
-
-        id="testCube"
-
-        position="0 0 0.1"
-
-        scale="0.2 0.2 0.2"
-
-        color="red">
-
-      </a-box>
-
-
-
-      <!-- =================================================
-           GLB MODEL
+           TEST2026 forces the browser to treat this
+           as a new model URL.
            ================================================= -->
 
 
       <a-gltf-model
 
         id="ar-model"
+
+        src="./model.glb?v=TEST2026"
 
         position="0 0 0.1"
 
@@ -250,34 +237,7 @@ const resetButton =
 
 
 /* =========================================================
-   MODEL CACHE BUSTING
-   ========================================================= */
-
-
-const version =
-  Date.now();
-
-
-const modelURL =
-  "./model.glb?v=" + version;
-
-
-console.log(
-  "CACHE VERSION:",
-  version
-);
-
-
-console.log(
-  "MODEL URL:",
-  modelURL
-);
-
-
-
-
-/* =========================================================
-   MODEL EVENTS
+   MODEL LOADED
    ========================================================= */
 
 
@@ -289,7 +249,7 @@ model.addEventListener(
 
 
     console.log(
-      "MODEL LOADED"
+      "NEW MODEL LOADED"
     );
 
 
@@ -323,6 +283,12 @@ model.addEventListener(
 
 
 
+
+/* =========================================================
+   MODEL ERROR
+   ========================================================= */
+
+
 model.addEventListener(
 
   "model-error",
@@ -336,6 +302,12 @@ model.addEventListener(
     );
 
 
+    console.error(
+      "DETAIL:",
+      event.detail
+    );
+
+
     instructions.style.display =
       "block";
 
@@ -345,22 +317,6 @@ model.addEventListener(
 
 
   }
-
-);
-
-
-
-
-/* =========================================================
-   LOAD MODEL
-   ========================================================= */
-
-
-model.setAttribute(
-
-  "src",
-
-  modelURL
 
 );
 
@@ -491,17 +447,16 @@ resetButton.addEventListener(
   async function () {
 
 
+    resetButton.innerText =
+      "Resetting...";
+
+
     instructions.style.display =
       "block";
 
 
     instructions.innerText =
       "Resetting tracking...";
-
-
-    resetButton.innerText =
-      "Resetting...";
-
 
 
     const mindarSystem =
