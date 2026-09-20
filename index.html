@@ -13,11 +13,16 @@
   <title>Matterhedron AR</title>
 
 
+  <!-- =====================================================
+       LIBRARIES
+       ===================================================== -->
+
+
   <!-- A-FRAME -->
   <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
 
 
-  <!-- A-FRAME EXTRAS -->
+  <!-- A-FRAME EXTRAS - GLB ANIMATION SUPPORT -->
   <script src="https://cdn.jsdelivr.net/npm/aframe-extras@7.5.4/dist/aframe-extras.min.js"></script>
 
 
@@ -25,13 +30,27 @@
   <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
 
 
+
+  <!-- =====================================================
+       PAGE STYLE
+       ===================================================== -->
+
+
   <style>
 
     body {
+
       margin: 0;
+
       overflow: hidden;
+
       font-family: Arial, sans-serif;
+
     }
+
+
+
+    /* STATUS MESSAGE */
 
 
     #instructions {
@@ -62,6 +81,10 @@
     }
 
 
+
+    /* RESET BUTTON */
+
+
     #resetButton {
 
       position: fixed;
@@ -89,6 +112,16 @@
 
     }
 
+
+
+    #resetButton:active {
+
+      background: white;
+
+      color: black;
+
+    }
+
   </style>
 
 </head>
@@ -98,12 +131,23 @@
 <body>
 
 
+
+  <!-- =====================================================
+       STATUS MESSAGE
+       ===================================================== -->
+
+
   <div id="instructions">
 
     Loading AR...
 
   </div>
 
+
+
+  <!-- =====================================================
+       RESET BUTTON
+       ===================================================== -->
 
 
   <button id="resetButton">
@@ -145,7 +189,9 @@
 
 
 
-    <!-- CAMERA -->
+    <!-- ===================================================
+         CAMERA
+         =================================================== -->
 
 
     <a-camera
@@ -155,6 +201,57 @@
       look-controls="enabled: false">
 
     </a-camera>
+
+
+
+    <!-- ===================================================
+         LIGHTING
+         =================================================== -->
+
+
+    <!--
+      AMBIENT LIGHT
+
+      Provides general illumination across
+      the entire model.
+
+      Increase intensity if the model is
+      still too dark.
+    -->
+
+
+    <a-light
+
+      type="ambient"
+
+      color="#FFFFFF"
+
+      intensity="1.5">
+
+    </a-light>
+
+
+
+    <!--
+      DIRECTIONAL LIGHT
+
+      Gives the model shape and definition.
+
+      Think of this as the main light source.
+    -->
+
+
+    <a-light
+
+      type="directional"
+
+      color="#FFFFFF"
+
+      intensity="1.5"
+
+      position="1 2 2">
+
+    </a-light>
 
 
 
@@ -172,10 +269,7 @@
 
 
       <!-- =================================================
-           NEW MODEL
-
-           TEST2026 forces the browser to treat this
-           as a new model URL.
+           3D MODEL
            ================================================= -->
 
 
@@ -189,7 +283,7 @@
 
         rotation="90 0 0"
 
-        scale="0.4 0.4 0.4"
+        scale="0.3 0.3 0.3"
 
         animation-mixer="
           clip: *;
@@ -210,7 +304,7 @@
 
 
 /* =========================================================
-   ELEMENTS
+   GET PAGE ELEMENTS
    ========================================================= */
 
 
@@ -249,7 +343,7 @@ model.addEventListener(
 
 
     console.log(
-      "NEW MODEL LOADED"
+      "3D MODEL LOADED SUCCESSFULLY"
     );
 
 
@@ -303,7 +397,7 @@ model.addEventListener(
 
 
     console.error(
-      "DETAIL:",
+      "MODEL ERROR DETAILS:",
       event.detail
     );
 
@@ -356,7 +450,7 @@ scene.addEventListener(
 
 
 /* =========================================================
-   TARGET FOUND
+   ARTWORK FOUND
    ========================================================= */
 
 
@@ -404,7 +498,7 @@ target.addEventListener(
 
 
 /* =========================================================
-   TARGET LOST
+   ARTWORK LOST
    ========================================================= */
 
 
@@ -436,7 +530,7 @@ target.addEventListener(
 
 
 /* =========================================================
-   RESET
+   RESET BUTTON
    ========================================================= */
 
 
@@ -459,10 +553,55 @@ resetButton.addEventListener(
       "Resetting tracking...";
 
 
+
+    /* -----------------------------------------
+       RESET MODEL TRANSFORM
+       ----------------------------------------- */
+
+
+    model.setAttribute(
+
+      "position",
+
+      "0 0 0.1"
+
+    );
+
+
+    model.setAttribute(
+
+      "rotation",
+
+      "90 0 0"
+
+    );
+
+
+    model.setAttribute(
+
+      "scale",
+
+      "0.3 0.3 0.3"
+
+    );
+
+
+
+    /* -----------------------------------------
+       GET MINDAR SYSTEM
+       ----------------------------------------- */
+
+
     const mindarSystem =
       scene.systems[
         "mindar-image-system"
       ];
+
+
+
+    /* -----------------------------------------
+       RESTART TRACKING
+       ----------------------------------------- */
 
 
     if (mindarSystem) {
@@ -501,6 +640,7 @@ resetButton.addEventListener(
 
 
     }
+
 
 
     resetButton.innerText =
