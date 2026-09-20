@@ -13,13 +13,15 @@
   <title>AR Test</title>
 
 
-  <!-- A-Frame -->
+  <!-- A-FRAME -->
   <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
 
-  <!-- A-Frame Extras - allows GLB animations -->
+
+  <!-- A-FRAME EXTRAS - GLB ANIMATION SUPPORT -->
   <script src="https://cdn.jsdelivr.net/npm/aframe-extras@7.5.4/dist/aframe-extras.min.js"></script>
 
-  <!-- MindAR -->
+
+  <!-- MINDAR -->
   <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
 
 
@@ -32,22 +34,35 @@
     }
 
 
+    /* TOP INSTRUCTIONS */
+
     #instructions {
+
       position: fixed;
+
       top: 20px;
       left: 50%;
+
       transform: translateX(-50%);
+
       z-index: 9999;
 
       background: rgba(0,0,0,0.75);
+
       color: white;
 
       padding: 12px 20px;
+
       border-radius: 8px;
 
       text-align: center;
+
       font-size: 14px;
+
+      white-space: nowrap;
+
     }
+
 
 
     /* RESET BUTTON */
@@ -64,6 +79,7 @@
       z-index: 9999;
 
       background: rgba(0,0,0,0.75);
+
       color: white;
 
       border: 1px solid rgba(255,255,255,0.5);
@@ -81,7 +97,8 @@
 
     #resetButton:active {
 
-      background: rgba(255,255,255,0.9);
+      background: white;
+
       color: black;
 
     }
@@ -91,30 +108,35 @@
 </head>
 
 
+
 <body>
 
 
+  <!-- STATUS MESSAGE -->
+
   <div id="instructions">
-    Point your camera at the artwork
+
+    Loading AR...
+
   </div>
 
 
+
+  <!-- RESET BUTTON -->
+
   <button id="resetButton">
+
     Reset to Artwork
+
   </button>
 
 
 
+  <!-- AR SCENE -->
+
   <a-scene
 
     id="ar-scene"
-
-    mindar-image="
-      imageTargetSrc: ./targets.mind;
-      autoStart: true;
-      missTolerance: 30;
-      warmupTolerance: 5;
-    "
 
     color-space="sRGB"
 
@@ -127,7 +149,10 @@
 
     device-orientation-permission-ui="enabled: false"
 
+    embedded
+
   >
+
 
 
     <!-- ASSETS -->
@@ -135,8 +160,7 @@
     <a-assets>
 
       <a-asset-item
-        id="model"
-        src="./model.glb">
+        id="modelAsset">
       </a-asset-item>
 
     </a-assets>
@@ -146,8 +170,11 @@
     <!-- CAMERA -->
 
     <a-camera
+
       position="0 0 0"
+
       look-controls="enabled: false">
+
     </a-camera>
 
 
@@ -155,17 +182,19 @@
     <!-- TRACKED ARTWORK -->
 
     <a-entity
+
       id="target"
+
       mindar-image-target="targetIndex: 0">
 
 
-      <!-- ANIMATED BLENDER MODEL -->
+      <!-- 3D MODEL -->
 
       <a-gltf-model
 
         id="ar-model"
 
-        src="#model"
+        src="#modelAsset"
 
         position="0 0 0"
 
@@ -188,71 +217,327 @@
 
 
 
-  <script>
 
-    const scene = document.querySelector("#ar-scene");
-    const model = document.querySelector("#ar-model");
-    const resetButton = document.querySelector("#resetButton");
-    const instructions = document.querySelector("#instructions");
+<script>
 
 
-    resetButton.addEventListener("click", async () => {
-
-      /* Change button text temporarily */
-
-      resetButton.innerText = "Resetting...";
+/* =========================================================
+   AR DEVELOPMENT TEMPLATE
+   ========================================================= */
 
 
-      /*
-       * Reset model transform.
-       * These values match the original
-       * values in the HTML above.
-       */
-
-      model.setAttribute("position", "0 0 0");
-      model.setAttribute("rotation", "90 0 0");
-      model.setAttribute("scale", "0.3 0.3 0.3");
+const scene =
+  document.querySelector("#ar-scene");
 
 
-      /*
-       * Restart MindAR.
-       * This clears the current tracking
-       * estimate and forces the artwork
-       * to be detected again.
-       */
-
-      const mindarSystem =
-        scene.systems["mindar-image-system"];
+const target =
+  document.querySelector("#target");
 
 
-      if (mindarSystem) {
+const model =
+  document.querySelector("#ar-model");
 
-        try {
 
-          await mindarSystem.stop();
+const modelAsset =
+  document.querySelector("#modelAsset");
 
-          instructions.innerText =
-            "Point your camera at the artwork";
 
-          await mindarSystem.start();
+const resetButton =
+  document.querySelector("#resetButton");
 
-        }
 
-        catch (error) {
+const instructions =
+  document.querySelector("#instructions");
 
-          console.log("AR reset error:", error);
 
-        }
+
+
+/* =========================================================
+   CACHE BUSTING
+   =========================================================
+
+   Generate a unique version number every time
+   the webpage loads.
+
+   This prevents the phone from using an old
+   model.glb or targets.mind file.
+
+*/
+
+
+const version = Date.now();
+
+
+const modelURL =
+  "./model.glb?v=" + version;
+
+
+const targetURL =
+  "./targets.mind?v=" + version;
+
+
+
+console.log("AR Version:", version);
+
+console.log("Loading model:", modelURL);
+
+console.log("Loading target:", targetURL);
+
+
+
+
+/* =========================================================
+   LOAD LATEST MODEL
+   ========================================================= */
+
+
+modelAsset.setAttribute(
+  "src",
+  modelURL
+);
+
+
+
+
+/* =========================================================
+   CONFIGURE MINDAR
+   ========================================================= */
+
+
+scene.setAttribute(
+
+  "mindar-image",
+
+  `imageTargetSrc: ${targetURL};
+   autoStart: true;
+   missTolerance: 30;
+   warmupTolerance: 5;`
+
+);
+
+
+
+
+/* =========================================================
+   AR READY
+   ========================================================= */
+
+
+scene.addEventListener(
+
+  "arReady",
+
+  () => {
+
+    instructions.innerText =
+      "Point your camera at the artwork";
+
+  }
+
+);
+
+
+
+
+/* =========================================================
+   AR ERROR
+   ========================================================= */
+
+
+scene.addEventListener(
+
+  "arError",
+
+  () => {
+
+    instructions.innerText =
+      "AR failed to start";
+
+  }
+
+);
+
+
+
+
+/* =========================================================
+   TARGET FOUND
+   ========================================================= */
+
+
+target.addEventListener(
+
+  "targetFound",
+
+  () => {
+
+    console.log("Artwork found");
+
+    instructions.innerText =
+      "Artwork found";
+
+
+
+    /*
+      Hide the message after a short delay.
+    */
+
+
+    setTimeout(
+
+      () => {
+
+        instructions.style.display =
+          "none";
+
+      },
+
+      1000
+
+    );
+
+  }
+
+);
+
+
+
+
+/* =========================================================
+   TARGET LOST
+   ========================================================= */
+
+
+target.addEventListener(
+
+  "targetLost",
+
+  () => {
+
+    console.log("Artwork lost");
+
+
+    instructions.style.display =
+      "block";
+
+
+    instructions.innerText =
+      "Reacquiring artwork...";
+
+  }
+
+);
+
+
+
+
+/* =========================================================
+   RESET BUTTON
+   ========================================================= */
+
+
+resetButton.addEventListener(
+
+  "click",
+
+  async () => {
+
+
+    resetButton.innerText =
+      "Resetting...";
+
+
+    instructions.style.display =
+      "block";
+
+
+    instructions.innerText =
+      "Resetting tracking...";
+
+
+
+    /* -----------------------------------------
+       RESET MODEL
+       ----------------------------------------- */
+
+
+    model.setAttribute(
+      "position",
+      "0 0 0"
+    );
+
+
+    model.setAttribute(
+      "rotation",
+      "90 0 0"
+    );
+
+
+    model.setAttribute(
+      "scale",
+      "0.3 0.3 0.3"
+    );
+
+
+
+    /* -----------------------------------------
+       RESET MINDAR
+       ----------------------------------------- */
+
+
+    const mindarSystem =
+      scene.systems["mindar-image-system"];
+
+
+    if (mindarSystem) {
+
+
+      try {
+
+
+        await mindarSystem.stop();
+
+
+        instructions.innerText =
+          "Point your camera at the artwork";
+
+
+        await mindarSystem.start();
+
 
       }
 
 
-      resetButton.innerText =
-        "Reset to Artwork";
+      catch (error) {
 
-    });
 
-  </script>
+        console.error(
+          "AR reset error:",
+          error
+        );
+
+
+        instructions.innerText =
+          "Unable to reset AR";
+
+
+      }
+
+
+    }
+
+
+
+    resetButton.innerText =
+      "Reset to Artwork";
+
+
+  }
+
+);
+
+
+</script>
 
 
 </body>
