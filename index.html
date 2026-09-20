@@ -12,14 +12,11 @@
 
   <title>AR Test</title>
 
-
   <!-- A-FRAME -->
   <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
 
-
-  <!-- A-FRAME EXTRAS - ANIMATION SUPPORT -->
+  <!-- A-FRAME EXTRAS -->
   <script src="https://cdn.jsdelivr.net/npm/aframe-extras@7.5.4/dist/aframe-extras.min.js"></script>
-
 
   <!-- MINDAR -->
   <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
@@ -33,68 +30,46 @@
       font-family: Arial, sans-serif;
     }
 
-
     #instructions {
-
       position: fixed;
-
       top: 20px;
       left: 50%;
-
       transform: translateX(-50%);
-
       z-index: 9999;
 
       background: rgba(0,0,0,0.75);
-
       color: white;
 
       padding: 12px 20px;
-
       border-radius: 8px;
 
       text-align: center;
-
       font-size: 14px;
-
       white-space: nowrap;
-
     }
 
-
     #resetButton {
-
       position: fixed;
-
       bottom: 25px;
       left: 50%;
-
       transform: translateX(-50%);
-
       z-index: 9999;
 
       background: rgba(0,0,0,0.75);
-
       color: white;
 
       border: 1px solid rgba(255,255,255,0.5);
 
       padding: 10px 16px;
-
       border-radius: 20px;
 
       font-size: 13px;
-
       cursor: pointer;
-
     }
 
-
     #resetButton:active {
-
       background: white;
       color: black;
-
     }
 
   </style>
@@ -105,91 +80,143 @@
 <body>
 
 
-  <div id="instructions">
-    Loading AR...
-  </div>
+<div id="instructions">
+  Loading 3D model...
+</div>
 
 
-  <button id="resetButton">
-    Reset to Artwork
-  </button>
+<button id="resetButton">
+  Reset to Artwork
+</button>
 
 
+<!--
+=========================================================
+AR SCENE WILL BE CREATED BY JAVASCRIPT
+=========================================================
+-->
 
-  <!-- AR SCENE -->
-
-  <a-scene
-
-    id="ar-scene"
-
-    color-space="sRGB"
-
-    renderer="
-      colorManagement: true;
-      physicallyCorrectLights: true;
-    "
-
-    vr-mode-ui="enabled: false"
-
-    device-orientation-permission-ui="enabled: false"
-
-  >
-
-
-
-    <!-- CAMERA -->
-
-    <a-camera
-
-      position="0 0 0"
-
-      look-controls="enabled: false">
-
-    </a-camera>
-
-
-
-    <!-- TRACKED ARTWORK -->
-
-    <a-entity
-
-      id="target"
-
-      mindar-image-target="targetIndex: 0">
-
-
-      <!-- 3D MODEL -->
-
-      <a-gltf-model
-
-        id="ar-model"
-
-        position="0 0 0"
-
-        rotation="90 0 0"
-
-        scale="0.3 0.3 0.3"
-
-        animation-mixer="
-          clip: *;
-          loop: repeat;
-        ">
-
-      </a-gltf-model>
-
-
-    </a-entity>
-
-
-  </a-scene>
+<div id="ar-container"></div>
 
 
 
 <script>
 
+/* =========================================================
+   CREATE UNIQUE CACHE VERSION
+   ========================================================= */
+
+const version = Date.now();
+
+const modelURL =
+  "./model.glb?v=" + version;
+
+const targetURL =
+  "./targets.mind?v=" + version;
+
+
+console.log("CACHE VERSION:", version);
+console.log("MODEL:", modelURL);
+console.log("TARGET:", targetURL);
+
+
 
 /* =========================================================
-   ELEMENTS
+   BUILD AR SCENE
+   =========================================================
+
+   We create the HTML BEFORE A-Frame initialises it.
+
+   This means A-Frame sees the correct model URL
+   immediately instead of us changing it afterwards.
+   ========================================================= */
+
+
+const container =
+  document.querySelector("#ar-container");
+
+
+container.innerHTML = `
+
+<a-scene
+
+  id="ar-scene"
+
+  mindar-image="
+    imageTargetSrc: ${targetURL};
+    autoStart: true;
+    missTolerance: 30;
+    warmupTolerance: 5;
+  "
+
+  color-space="sRGB"
+
+  renderer="
+    colorManagement: true;
+    physicallyCorrectLights: true;
+  "
+
+  vr-mode-ui="enabled: false"
+
+  device-orientation-permission-ui="enabled: false"
+
+>
+
+
+  <!-- CAMERA -->
+
+  <a-camera
+
+    position="0 0 0"
+
+    look-controls="enabled: false">
+
+  </a-camera>
+
+
+
+  <!-- TRACKED ARTWORK -->
+
+  <a-entity
+
+    id="target"
+
+    mindar-image-target="targetIndex: 0">
+
+
+    <!-- MODEL -->
+
+    <a-gltf-model
+
+      id="ar-model"
+
+      src="${modelURL}"
+
+      position="0 0 0"
+
+      rotation="90 0 0"
+
+      scale="0.3 0.3 0.3"
+
+      animation-mixer="
+        clip: *;
+        loop: repeat;
+      ">
+
+    </a-gltf-model>
+
+
+  </a-entity>
+
+
+</a-scene>
+
+`;
+
+
+
+/* =========================================================
+   GET ELEMENTS
    ========================================================= */
 
 
@@ -214,53 +241,8 @@ const resetButton =
 
 
 
-
 /* =========================================================
-   UNIQUE CACHE VERSION
-   ========================================================= */
-
-
-const version =
-  Date.now();
-
-
-console.log(
-  "AR cache version:",
-  version
-);
-
-
-
-
-/* =========================================================
-   FILE URLS
-   ========================================================= */
-
-
-const modelURL =
-  "./model.glb?v=" + version;
-
-
-const targetURL =
-  "./targets.mind?v=" + version;
-
-
-console.log(
-  "Loading model:",
-  modelURL
-);
-
-
-console.log(
-  "Loading target:",
-  targetURL
-);
-
-
-
-
-/* =========================================================
-   MODEL EVENTS
+   MODEL LOADED
    ========================================================= */
 
 
@@ -272,7 +254,7 @@ model.addEventListener(
 
 
     console.log(
-      "3D MODEL LOADED SUCCESSFULLY"
+      "MODEL LOADED SUCCESSFULLY"
     );
 
 
@@ -293,7 +275,7 @@ model.addEventListener(
 
       },
 
-      1200
+      1500
 
     );
 
@@ -302,6 +284,11 @@ model.addEventListener(
 
 );
 
+
+
+/* =========================================================
+   MODEL ERROR
+   ========================================================= */
 
 
 model.addEventListener(
@@ -312,7 +299,7 @@ model.addEventListener(
 
 
     console.error(
-      "3D MODEL FAILED TO LOAD",
+      "MODEL FAILED TO LOAD:",
       event
     );
 
@@ -322,123 +309,12 @@ model.addEventListener(
 
 
     instructions.innerText =
-      "3D model failed to load";
+      "3D MODEL FAILED TO LOAD";
 
 
   }
 
 );
-
-
-
-
-/* =========================================================
-   LOAD MODEL
-   =========================================================
-
-   IMPORTANT:
-
-   We apply the unique URL directly to the
-   GLTF model.
-
-   This avoids the previous issue involving
-   the A-Frame asset manager.
-
-*/
-
-
-model.setAttribute(
-
-  "src",
-
-  modelURL
-
-);
-
-
-
-
-/* =========================================================
-   CONFIGURE MINDAR
-   ========================================================= */
-
-
-scene.setAttribute(
-
-  "mindar-image",
-
-  `imageTargetSrc: ${targetURL};
-   autoStart: true;
-   missTolerance: 30;
-   warmupTolerance: 5;`
-
-);
-
-
-
-
-/* =========================================================
-   AR READY
-   ========================================================= */
-
-
-scene.addEventListener(
-
-  "arReady",
-
-  () => {
-
-
-    console.log(
-      "AR READY"
-    );
-
-
-    instructions.style.display =
-      "block";
-
-
-    instructions.innerText =
-      "Point your camera at the artwork";
-
-
-  }
-
-);
-
-
-
-
-/* =========================================================
-   AR ERROR
-   ========================================================= */
-
-
-scene.addEventListener(
-
-  "arError",
-
-  (event) => {
-
-
-    console.error(
-      "AR ERROR",
-      event
-    );
-
-
-    instructions.style.display =
-      "block";
-
-
-    instructions.innerText =
-      "AR failed to start";
-
-
-  }
-
-);
-
 
 
 
@@ -487,7 +363,6 @@ target.addEventListener(
 
 
 
-
 /* =========================================================
    TARGET LOST
    ========================================================= */
@@ -519,9 +394,8 @@ target.addEventListener(
 
 
 
-
 /* =========================================================
-   RESET BUTTON
+   RESET
    ========================================================= */
 
 
@@ -544,9 +418,7 @@ resetButton.addEventListener(
       "Resetting tracking...";
 
 
-
-    /* RESET MODEL TRANSFORM */
-
+    /* RESET MODEL */
 
     model.setAttribute(
       "position",
@@ -567,8 +439,7 @@ resetButton.addEventListener(
 
 
 
-    /* RESTART MINDAR */
-
+    /* RESET TRACKING */
 
     const mindarSystem =
       scene.systems[
@@ -599,7 +470,7 @@ resetButton.addEventListener(
 
 
         console.error(
-          "AR RESET ERROR:",
+          "RESET ERROR:",
           error
         );
 
